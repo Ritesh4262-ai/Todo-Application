@@ -1,0 +1,597 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>To-Do App</title>
+    <style>
+      * {
+        box-sizing: border-box;
+      }
+      body {
+        font-family:
+          -apple-system,
+          Segoe UI,
+          Roboto,
+          Arial,
+          sans-serif;
+        background: #f4f5f7;
+        margin: 0;
+        padding: 24px;
+        color: #1f2328;
+      }
+      .container {
+        max-width: 640px;
+        margin: 0 auto;
+      }
+      h1 {
+        font-size: 22px;
+        margin-bottom: 4px;
+      }
+      .subtitle {
+        color: #656d76;
+        font-size: 13px;
+        margin-bottom: 20px;
+      }
+      .card {
+        background: white;
+        border-radius: 10px;
+        padding: 18px;
+        margin-bottom: 16px;
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+      }
+      label {
+        display: block;
+        font-size: 12px;
+        font-weight: 600;
+        color: #656d76;
+        margin-bottom: 4px;
+        margin-top: 10px;
+      }
+      input,
+      textarea {
+        width: 100%;
+        padding: 8px 10px;
+        border: 1px solid #d1d5da;
+        border-radius: 6px;
+        font-size: 14px;
+        font-family: inherit;
+      }
+      button {
+        background: #2563eb;
+        color: white;
+        border: none;
+        padding: 9px 16px;
+        border-radius: 6px;
+        font-size: 14px;
+        cursor: pointer;
+        margin-top: 12px;
+      }
+      button:hover {
+        background: #1d4ed8;
+      }
+      button.secondary {
+        background: #6b7280;
+      }
+      button.secondary:hover {
+        background: #4b5563;
+      }
+      button.danger {
+        background: #dc2626;
+        padding: 5px 10px;
+        font-size: 12px;
+        margin: 0;
+      }
+      button.danger:hover {
+        background: #b91c1c;
+      }
+      button.link {
+        background: none;
+        color: #2563eb;
+        padding: 0;
+        margin-top: 8px;
+        font-size: 13px;
+        text-decoration: underline;
+      }
+      button.link:hover {
+        background: none;
+        color: #1d4ed8;
+      }
+      .task {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 10px 0;
+        border-bottom: 1px solid #eee;
+      }
+      .task:last-child {
+        border-bottom: none;
+      }
+      .task-info {
+        flex: 1;
+      }
+      .task-title {
+        font-weight: 600;
+        font-size: 14px;
+      }
+      .task-desc {
+        font-size: 12px;
+        color: #656d76;
+        margin-top: 2px;
+      }
+      .status {
+        display: inline-block;
+        font-size: 11px;
+        padding: 2px 8px;
+        border-radius: 10px;
+        margin-top: 4px;
+      }
+      .status.pending {
+        background: #fef3c7;
+        color: #92400e;
+      }
+      .status.done {
+        background: #d1fae5;
+        color: #065f46;
+      }
+      select {
+        padding: 4px 6px;
+        border-radius: 6px;
+        border: 1px solid #d1d5da;
+        font-size: 12px;
+        margin-right: 8px;
+      }
+      .task-actions {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+      }
+      .empty {
+        color: #999;
+        font-size: 13px;
+        text-align: center;
+        padding: 20px 0;
+      }
+      .msg {
+        font-size: 13px;
+        margin-top: 8px;
+      }
+      .msg.error {
+        color: #dc2626;
+      }
+      .msg.success {
+        color: #059669;
+      }
+      button.small {
+        padding: 5px 10px;
+        font-size: 12px;
+        margin: 0;
+      }
+      button.edit-btn {
+        background: #4b5563;
+      }
+      button.edit-btn:hover {
+        background: #374151;
+      }
+      .edit-box {
+        background: #f9fafb;
+        border: 1px solid #e5e7eb;
+        border-radius: 8px;
+        padding: 10px;
+        margin: 8px 0;
+        width: 100%;
+      }
+      .edit-box input,
+      .edit-box textarea {
+        margin-bottom: 6px;
+      }
+      .edit-box-actions {
+        display: flex;
+        gap: 8px;
+      }
+      .edit-box-actions button {
+        margin-top: 0;
+      }
+      .topbar {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 16px;
+      }
+      .who {
+        font-size: 13px;
+        color: #656d76;
+      }
+      #authScreen {
+        max-width: 380px;
+        margin: 60px auto;
+      }
+      .tab-row {
+        display: flex;
+        gap: 8px;
+        margin-bottom: 12px;
+      }
+      .tab-btn {
+        flex: 1;
+        background: #e5e7eb;
+        color: #374151;
+        margin-top: 0;
+      }
+      .tab-btn.active {
+        background: #2563eb;
+        color: white;
+      }
+      #app {
+        display: none;
+      }
+    </style>
+  </head>
+  <body>
+    <!-- ============ LOGIN / REGISTER SCREEN ============ -->
+    <div class="container" id="authScreen">
+      <h1>To-Do App</h1>
+      <div class="subtitle">Backend: <code>http://127.0.0.1:8001</code></div>
+      <div class="card">
+        <div class="tab-row">
+          <button
+            class="tab-btn active"
+            id="loginTabBtn"
+            onclick="switchTab('login')"
+          >
+            Login
+          </button>
+          <button
+            class="tab-btn"
+            id="registerTabBtn"
+            onclick="switchTab('register')"
+          >
+            Register
+          </button>
+        </div>
+
+        <div id="loginTab">
+          <label>Email</label>
+          <input type="email" id="loginEmail" placeholder="email@example.com" />
+          <label>Password</label>
+          <input type="password" id="loginPassword" placeholder="Password" />
+          <button onclick="login()">Log In</button>
+        </div>
+
+        <div id="registerTab" style="display: none">
+          <label>Name</label>
+          <input type="text" id="regName" placeholder="Your name" />
+          <label>Email</label>
+          <input type="email" id="regEmail" placeholder="email@example.com" />
+          <label>Password</label>
+          <input
+            type="password"
+            id="regPassword"
+            placeholder="Choose a password"
+          />
+          <button onclick="register()">Create Account</button>
+        </div>
+
+        <div class="msg" id="authMsg"></div>
+      </div>
+    </div>
+
+    <!-- ============ MAIN APP (only visible once logged in) ============ -->
+    <div class="container" id="app">
+      <div class="topbar">
+        <div>
+          <h1 style="margin-bottom: 0">To-Do App</h1>
+          <div class="who" id="whoAmI"></div>
+        </div>
+        <button class="secondary" onclick="logout()">Log Out</button>
+      </div>
+
+      <div class="card">
+        <label>Task Title</label>
+        <input type="text" id="taskTitle" placeholder="e.g. Buy groceries" />
+        <label>Description (optional)</label>
+        <textarea id="taskDesc" rows="2" placeholder="Details..."></textarea>
+        <button onclick="addTask()">+ Add Task</button>
+        <div class="msg" id="taskMsg"></div>
+      </div>
+
+      <div class="card">
+        <div
+          style="
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+          "
+        >
+          <strong>My Tasks</strong>
+          <button class="secondary" onclick="loadTasks()">Refresh</button>
+        </div>
+        <div id="taskList" style="margin-top: 10px"></div>
+      </div>
+    </div>
+
+    <script>
+      const API = "http://127.0.0.1:8001";
+
+      // ---- token helpers ----
+      // The token is the only thing that proves who you are to the backend.
+      // It's stored in localStorage so you stay logged in across page reloads,
+      // on THIS browser only - it is never shared with other users.
+      function getToken() {
+        return localStorage.getItem("todo_token");
+      }
+      function setSession(token, user) {
+        localStorage.setItem("todo_token", token);
+        localStorage.setItem("todo_user", JSON.stringify(user));
+      }
+      function clearSession() {
+        localStorage.removeItem("todo_token");
+        localStorage.removeItem("todo_user");
+      }
+      function getStoredUser() {
+        const raw = localStorage.getItem("todo_user");
+        return raw ? JSON.parse(raw) : null;
+      }
+
+      function authHeaders() {
+        return {
+          Authorization: "Bearer " + getToken(),
+          "Content-Type": "application/json",
+        };
+      }
+
+      // ---- tab switching on the auth screen ----
+      function switchTab(tab) {
+        document.getElementById("loginTab").style.display =
+          tab === "login" ? "block" : "none";
+        document.getElementById("registerTab").style.display =
+          tab === "register" ? "block" : "none";
+        document
+          .getElementById("loginTabBtn")
+          .classList.toggle("active", tab === "login");
+        document
+          .getElementById("registerTabBtn")
+          .classList.toggle("active", tab === "register");
+        document.getElementById("authMsg").textContent = "";
+      }
+
+      // ---- auth actions ----
+      async function register() {
+        const name = document.getElementById("regName").value.trim();
+        const email = document.getElementById("regEmail").value.trim();
+        const password = document.getElementById("regPassword").value;
+        const msg = document.getElementById("authMsg");
+        if (!name || !email || !password) {
+          msg.className = "msg error";
+          msg.textContent = "Please fill all fields";
+          return;
+        }
+        try {
+          const res = await fetch(`${API}/register`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ name, email, password }),
+          });
+          const data = await res.json();
+          if (!res.ok) throw new Error(data.detail || "Error");
+          setSession(data.token, data.user);
+          enterApp();
+        } catch (e) {
+          msg.className = "msg error";
+          msg.textContent = "Error: " + e.message;
+        }
+      }
+
+      async function login() {
+        const email = document.getElementById("loginEmail").value.trim();
+        const password = document.getElementById("loginPassword").value;
+        const msg = document.getElementById("authMsg");
+        if (!email || !password) {
+          msg.className = "msg error";
+          msg.textContent = "Please enter email and password";
+          return;
+        }
+        try {
+          const res = await fetch(`${API}/login`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ email, password }),
+          });
+          const data = await res.json();
+          if (!res.ok) throw new Error(data.detail || "Error");
+          setSession(data.token, data.user);
+          enterApp();
+        } catch (e) {
+          msg.className = "msg error";
+          msg.textContent = "Error: " + e.message;
+        }
+      }
+
+      function logout() {
+        clearSession();
+        document.getElementById("app").style.display = "none";
+        document.getElementById("authScreen").style.display = "block";
+      }
+
+      function enterApp() {
+        const user = getStoredUser();
+        document.getElementById("authScreen").style.display = "none";
+        document.getElementById("app").style.display = "block";
+        document.getElementById("whoAmI").textContent =
+          `Logged in as ${user.name} (${user.email})`;
+        loadTasks();
+      }
+
+      // ---- tasks (all scoped server-side to whoever the token belongs to) ----
+      async function addTask() {
+        const title = document.getElementById("taskTitle").value.trim();
+        const description = document.getElementById("taskDesc").value.trim();
+        const msg = document.getElementById("taskMsg");
+        if (!title) {
+          msg.className = "msg error";
+          msg.textContent = "Please enter a task title";
+          return;
+        }
+        try {
+          const res = await fetch(`${API}/tasks`, {
+            method: "POST",
+            headers: authHeaders(),
+            body: JSON.stringify({ title, description: description || null }),
+          });
+          const data = await res.json();
+          if (res.status === 401) return handleExpiredSession();
+          if (!res.ok) throw new Error(data.detail || "Error");
+          document.getElementById("taskTitle").value = "";
+          document.getElementById("taskDesc").value = "";
+          msg.className = "msg success";
+          msg.textContent = "Task added successfully!";
+          loadTasks();
+        } catch (e) {
+          msg.className = "msg error";
+          msg.textContent = "Error: " + e.message;
+        }
+      }
+
+      async function loadTasks() {
+        const list = document.getElementById("taskList");
+        try {
+          const res = await fetch(`${API}/tasks`, { headers: authHeaders() });
+          if (res.status === 401) return handleExpiredSession();
+          const tasks = await res.json();
+          if (!res.ok) throw new Error(tasks.detail || "Error");
+
+          if (!tasks.length) {
+            list.innerHTML = '<div class="empty">No tasks yet</div>';
+            return;
+          }
+
+          list.innerHTML = tasks
+            .map(
+              (t) => `
+      <div class="task" id="task-${t.id}">
+        <div class="task-info">
+          <div class="task-view" id="view-${t.id}">
+            <div class="task-title">${escapeHtml(t.title)}</div>
+            ${t.description ? `<div class="task-desc">${escapeHtml(t.description)}</div>` : ""}
+            <span class="status ${t.status === "done" ? "done" : "pending"}">${escapeHtml(t.status)}</span>
+          </div>
+          <div class="edit-box" id="edit-${t.id}" style="display:none;">
+            <label>Title</label>
+            <input type="text" id="edit-title-${t.id}" value="${escapeAttr(t.title)}">
+            <label>Description</label>
+            <textarea id="edit-desc-${t.id}" rows="2">${escapeHtml(t.description || "")}</textarea>
+            <div class="edit-box-actions">
+              <button class="small" onclick="saveEdit(${t.id})">Save</button>
+              <button class="small secondary" onclick="cancelEdit(${t.id})">Cancel</button>
+            </div>
+          </div>
+        </div>
+        <div class="task-actions" id="actions-${t.id}">
+          <select onchange="updateStatus(${t.id}, this.value)">
+            <option value="pending" ${t.status === "pending" ? "selected" : ""}>Pending</option>
+            <option value="done" ${t.status === "done" ? "selected" : ""}>Done</option>
+          </select>
+          <button class="small edit-btn" onclick="editTask(${t.id})">Edit</button>
+          <button class="danger" onclick="deleteTask(${t.id})">Delete</button>
+        </div>
+      </div>
+    `,
+            )
+            .join("");
+        } catch (e) {
+          list.innerHTML = `<div class="msg error">Error: ${e.message}</div>`;
+        }
+      }
+
+      function editTask(taskId) {
+        document.getElementById(`view-${taskId}`).style.display = "none";
+        document.getElementById(`actions-${taskId}`).style.display = "none";
+        document.getElementById(`edit-${taskId}`).style.display = "block";
+      }
+
+      function cancelEdit(taskId) {
+        document.getElementById(`view-${taskId}`).style.display = "block";
+        document.getElementById(`actions-${taskId}`).style.display = "flex";
+        document.getElementById(`edit-${taskId}`).style.display = "none";
+      }
+
+      async function saveEdit(taskId) {
+        const title = document
+          .getElementById(`edit-title-${taskId}`)
+          .value.trim();
+        const description = document
+          .getElementById(`edit-desc-${taskId}`)
+          .value.trim();
+        if (!title) {
+          alert("Title cannot be empty");
+          return;
+        }
+        try {
+          const res = await fetch(`${API}/tasks/${taskId}`, {
+            method: "PUT",
+            headers: authHeaders(),
+            body: JSON.stringify({ title, description: description || null }),
+          });
+          if (res.status === 401) return handleExpiredSession();
+          const data = await res.json();
+          if (!res.ok) throw new Error(data.detail || "Error");
+          loadTasks();
+        } catch (e) {
+          alert("Error: " + e.message);
+        }
+      }
+
+      async function updateStatus(taskId, status) {
+        try {
+          const res = await fetch(`${API}/tasks/${taskId}`, {
+            method: "PUT",
+            headers: authHeaders(),
+            body: JSON.stringify({ status }),
+          });
+          if (res.status === 401) return handleExpiredSession();
+          loadTasks();
+        } catch (e) {
+          alert("Error: " + e.message);
+        }
+      }
+
+      async function deleteTask(taskId) {
+        if (!confirm("Delete this task?")) return;
+        try {
+          const res = await fetch(`${API}/tasks/${taskId}`, {
+            method: "DELETE",
+            headers: authHeaders(),
+          });
+          if (res.status === 401) return handleExpiredSession();
+          loadTasks();
+        } catch (e) {
+          alert("Error: " + e.message);
+        }
+      }
+
+      function handleExpiredSession() {
+        clearSession();
+        document.getElementById("app").style.display = "none";
+        document.getElementById("authScreen").style.display = "block";
+        document.getElementById("authMsg").className = "msg error";
+        document.getElementById("authMsg").textContent =
+          "Session expired, please log in again";
+      }
+
+      function escapeHtml(str) {
+        const div = document.createElement("div");
+        div.textContent = str;
+        return div.innerHTML;
+      }
+      function escapeAttr(str) {
+        return escapeHtml(str).replace(/"/g, "&quot;");
+      }
+
+      // ---- boot ----
+      if (getToken()) {
+        enterApp();
+      } else {
+        document.getElementById("authScreen").style.display = "block";
+      }
+    </script>
+  </body>
+</html>
